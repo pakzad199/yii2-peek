@@ -10,16 +10,38 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:yii2-peek.helloWorld"
+        "*"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "yii2-peek.helloWorld",
-				"title": "Hello World"
+		"commands": [],
+		"configuration": {
+			"type": "object",
+			"title": "File Peek extension configuration",
+			"properties": {
+			  "file_peek.activeLanguages": {
+				"type": "array",
+				"default": [
+				  "javascript",
+				  "php",
+				  "html",
+				  "css"
+				],
+				"items": {
+				  "type": "string"
+				},
+				"description": "A list of vscode language names where the extension should be used."
+			  },
+			  "file_peek.searchFileExtensions": {
+				"type": "array",
+				"default": [".js", ".html", ".css", ".php"],
+				"items": {
+				  "type": "string"
+				},
+				"description": "A list of extensions that should be tried for finding peeked files.  These are tried in order as further extensions of the potential file name and also as alternative file endings instead of the existing file extension (if available)."
+			  }
 			}
-		]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run package",
