@@ -1,6 +1,6 @@
 {
   "name": "yii2-peek",
-	"displayName": "yii2-peek",
+	"displayName": "Yii2 Peek",
 	"description": "Allow peek views from controllers easily",
 	"version": "0.0.1",
 	"engines": {
@@ -12,6 +12,11 @@
 	"activationEvents": [
         "*"
 	],
+	"publisher": "Mahdi Pakzad",
+	"author": {
+		"name": "Mahdi Pakzad",
+		"email": "pakzad199@gmail.com"
+	},
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [],
