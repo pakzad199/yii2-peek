@@ -9,11 +9,11 @@
 	"categories": [
 		"Other"
 	],
-	"icon": "https://avatars0.githubusercontent.com/u/993323",
+	"icon": "asset/image/logo.png",
 	"activationEvents": [
         "*"
 	],
-	"publisher": "Mahdi Pakzad",
+	"publisher": "MahdiPakzad",
 	"author": {
 		"name": "Mahdi Pakzad",
 		"email": "pakzad199@gmail.com"
