@@ -70,7 +70,8 @@ class PeekFileDefinitionProvider implements vscode.DefinitionProvider {
 	   let word = document.getText(document.getWordRangeAtPosition(position));
 	   let line = document.lineAt(position);
  
-	   let fileName = path.basename(document.fileName, '.php').replace('Controller', '').toLowerCase();
+	   let fileName = path.basename(document.fileName, '.php').replace('Controller', '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').
+	   toLocaleLowerCase().replace(/ /g, '-');
 
 	   let removeExtraAddress = document.fileName.slice(
 		document.fileName.indexOf('controllers')
