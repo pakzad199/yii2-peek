@@ -69,16 +69,13 @@ class PeekFileDefinitionProvider implements vscode.DefinitionProvider {
 	   let workingDir = path.dirname(document.fileName);
 	   let word = document.getText(document.getWordRangeAtPosition(position));
 	   let line = document.lineAt(position);
- 
+
+	   // controller name
 	   let fileName = path.basename(document.fileName, '.php').replace('Controller', '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').
 	   toLocaleLowerCase().replace(/ /g, '-');
 
-	   let removeExtraAddress = document.fileName.slice(
-		document.fileName.indexOf('controllers')
-	   );
-
 	   // generate view path
-	   let viewPath = document.fileName.replace(removeExtraAddress, '') + 'views/' + fileName;
+	   let viewPath = path.normalize(workingDir + '/../views/' + fileName);
 
 	   // We are looking for strings with filenames
 	   // - simple hack for now we look for the string with our current word in it on our line
@@ -94,15 +91,21 @@ class PeekFileDefinitionProvider implements vscode.DefinitionProvider {
 		  if((position.character >= matchStart) &&
 			 (position.character <= matchEnd))
 		  {
-			 let fullPath   = path.resolve(viewPath, potentialFname);
+			// add paths that mabye target file in their
+			 let fullPaths: string[] = [];
+			 fullPaths.push(path.resolve(viewPath, potentialFname));
+			 fullPaths.push(path.resolve(workingDir, potentialFname));
  
 			 // Find all potential paths to check and return the first one found
-			 let potentialFnames = this.getPotentialPaths(fullPath);
- 
+			let potentialFnames: string[] = [];
+			fullPaths.forEach((fullPath) => {
+				potentialFnames = potentialFnames.concat(this.getPotentialPaths(fullPath));
+			});
+
 			 let foundFname = potentialFnames.find((fnameFull) => {
 				return fs.existsSync(fnameFull);
 			 });
-			 if (foundFname != null) {
+			 if (foundFname !== undefined) {
 				return new vscode.Location(vscode.Uri.file(foundFname), new vscode.Position(0, 1));
 			 }
 		  }
