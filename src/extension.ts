@@ -71,13 +71,15 @@ class PeekFileDefinitionProvider implements vscode.DefinitionProvider {
 		let couldBeAddress: string[] = line.text.split(' ').filter((str) => {
 			return str.indexOf('\\') >= 0 && str.indexOf(word) >= 0;
 		});
-
-		let addressMatch = couldBeAddress[0].match(`('|").+${word}('|")`);
 		
-		if (addressMatch !== null) {
-			console.log('couldBeAddress: '+ addressMatch, '1: ' + addressMatch[0]);
+		if (couldBeAddress.length !== 0) {
+			let addressMatch = couldBeAddress[0].match(`('|").+${word}('|")`);
+			let workspaceFolders = vscode.workspace.workspaceFolders;
+			if (workspaceFolders && addressMatch) {
+				console.log('root directory : ', workspaceFolders[0].uri.path, 'addressMatch : ', addressMatch[0].replace(/\\/gi, '/'));
+			}
 		}
-
+		
 		// controller name
 		let fileName = path.basename(document.fileName, '.php').replace('Controller', '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').
 			toLocaleLowerCase().replace(/ /g, '-');
@@ -100,6 +102,8 @@ class PeekFileDefinitionProvider implements vscode.DefinitionProvider {
 				(position.character <= matchEnd)) {
 				// add paths that mabye target file in their
 				let fullPaths: string[] = [];
+				// console.log('viwPath: ' + viewPath,
+				// 'potentialFname: ' + potentialFname, 'workingDir : ' + workingDir);
 				fullPaths.push(path.resolve(viewPath, potentialFname));
 				fullPaths.push(path.resolve(workingDir, potentialFname));
 
