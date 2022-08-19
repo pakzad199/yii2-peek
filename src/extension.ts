@@ -60,26 +60,46 @@ class PeekFileDefinitionProvider implements vscode.DefinitionProvider {
 		return potentialPaths;
 	}
 
-	provideDefinition(document: vscode.TextDocument,
-		position: vscode.Position,
-		token: vscode.CancellationToken): vscode.Definition | undefined {
-		// todo: make this method operate async
-		let workingDir = path.dirname(document.fileName);
-		let word = document.getText(document.getWordRangeAtPosition(position));
-		let line = document.lineAt(position);
+	getFilePathFromLine(line: vscode.TextLine, word: string): string | undefined {
 
 		let couldBeAddress: string[] = line.text.split(' ').filter((str) => {
 			return str.indexOf('\\') >= 0 && str.indexOf(word) >= 0;
 		});
-		
+
 		if (couldBeAddress.length !== 0) {
 			let addressMatch = couldBeAddress[0].match(`('|").+${word}('|")`);
 			let workspaceFolders = vscode.workspace.workspaceFolders;
+
 			if (workspaceFolders && addressMatch) {
-				console.log('root directory : ', workspaceFolders[0].uri.path, 'addressMatch : ', addressMatch[0].replace(/\\/gi, '/'));
+				let rootDir = workspaceFolders[0].uri.path;
+				let addressWords: string[] = addressMatch[0].split('\\');
+				addressWords.forEach((item, index, array) => {
+					// remove extra char
+					item = item.replace(/[^a-zA-Z]+/g, '');
+
+					// add .php to last item in addressWords
+					if (index === array.length - 1) {
+						item = item + '.php';
+					}
+					if (item === 'yii') {
+						item = 'vendor/yiisoft/yii2';
+					}
+					// update rootDir, contain to item to build fullPath file
+					rootDir = path.join(rootDir, item);
+				});
+				return rootDir;
 			}
 		}
-		
+	}
+
+	provideDefinition(document: vscode.TextDocument,
+		position: vscode.Position,
+		token: vscode.CancellationToken): vscode.Definition | undefined {
+
+		let workingDir = path.dirname(document.fileName);
+		let word: string = document.getText(document.getWordRangeAtPosition(position));
+		let line = document.lineAt(position);
+
 		// controller name
 		let fileName = path.basename(document.fileName, '.php').replace('Controller', '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').
 			toLocaleLowerCase().replace(/ /g, '-');
@@ -106,6 +126,12 @@ class PeekFileDefinitionProvider implements vscode.DefinitionProvider {
 				// 'potentialFname: ' + potentialFname, 'workingDir : ' + workingDir);
 				fullPaths.push(path.resolve(viewPath, potentialFname));
 				fullPaths.push(path.resolve(workingDir, potentialFname));
+				
+				let filePathFromString = this.getFilePathFromLine(line, word);
+
+				if (filePathFromString !== undefined) {
+					fullPaths.push(filePathFromString);
+				}
 
 				// Find all potential paths to check and return the first one found
 				let potentialFnames: string[] = [];
